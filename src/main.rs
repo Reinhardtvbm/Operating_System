@@ -3,6 +3,8 @@
 
 use core::panic::PanicInfo;
 
+mod vga_buffer;
+
 /// self defined panic handler function
 #[panic_handler] // -> ! means never returns
 fn panic(_info: &PanicInfo) -> ! {
@@ -13,14 +15,12 @@ static HELLO: &[u8] = b"Hello World!";
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    let vga_buffer = 0xb8000 as *mut u8;
+    use core::fmt::Write;
 
-    for (i, &byte) in HELLO.iter().enumerate() {
-        unsafe {
-            *vga_buffer.offset(i as isize * 2) = byte;
-            *vga_buffer.offset(i as isize * 2 + 1) = 0xb;
-        }
-    }
+    vga_buffer::VGA_WRITER
+        .lock()
+        .write_str("Global static buffer here!")
+        .unwrap();
 
     loop {}
 }
