@@ -162,3 +162,22 @@ lazy_static! {
         buffer: unsafe { &mut *(0xB8000 as *mut Buffer) },
     });
 }
+
+/// Copy paste print! and prinln! from `libstd` to get out own println!() for the
+/// VGA buffer
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! println {
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
+
+#[doc(hidden)]
+pub fn _print(args: fmt::Arguments) {
+    use core::fmt::Write;
+    VGA_WRITER.lock().write_fmt(args).unwrap();
+}
