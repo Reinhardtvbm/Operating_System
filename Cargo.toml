@@ -6,11 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bootloader = "0.9.23"   # for creating bootloader binary
-volatile = "0.4.5"      # for writing without compiler optimisation
-spin = "0.9.4"          # spinlock mutexes and other async spinlock stuffs
-x86_64 = "0.14.10"      # x86_64 specific instructions, registers, and structures
-uart_16550 = "0.2.18"   # support for UART serial comms
+bootloader = "0.9.23"       # for creating bootloader binary
+volatile = "0.4.5"          # for writing without compiler optimisation
+spin = "0.9.4"              # spinlock mutexes and other async spinlock stuffs
+x86_64 = "0.14.10"          # x86_64 specific instructions, registers, and structures
+uart_16550 = "0.2.18"       # support for UART serial comms
+pic8259 = "0.10.2"          # programmable interrupt controller abstractions
+pc-keyboard = "0.6.1"       # driver for PS/2 keyboard output
 
 # lazy declaration of static variables for global use like VGA Buffer
 [dependencies.lazy_static]

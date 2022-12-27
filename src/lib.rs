@@ -1,12 +1,29 @@
 #![no_std]
 #![cfg_attr(test, no_main)]
 #![feature(custom_test_frameworks)]
+#![feature(abi_x86_interrupt)]
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+pub mod gdt;
+pub mod interrupts;
 pub mod serial;
 pub mod vga_buffer;
+
 use core::panic::PanicInfo;
+
+pub fn init() {
+    gdt::init(); // initialise the global descriptor table
+    interrupts::init_idt(); // initialise the interrupt descriptor table
+    unsafe { interrupts::PICS.lock().initialize() }; // initialise the programmable interrupt controllers
+    x86_64::instructions::interrupts::enable(); // enable external interrupts on the CPU
+}
+
+pub fn hlt_loop() -> ! {
+    loop {
+        x86_64::instructions::hlt();
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
@@ -51,15 +68,16 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
     serial_println!("[failed]\n");
     serial_println!("Error: {}\n", info);
     exit_qemu(QemuExitCode::Failure);
-    loop {}
+    hlt_loop();
 }
 
 /// Entry point for `cargo test`
 #[cfg(test)]
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
+    init(); // initialise the system
     test_main();
-    loop {}
+    hlt_loop();
 }
 
 #[cfg(test)]

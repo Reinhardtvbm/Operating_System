@@ -11,10 +11,22 @@ use os::println;
 pub extern "C" fn _start() -> ! {
     println!("Hello OS!");
 
+    os::init();
+
+    use x86_64::registers::control::Cr3;
+
+    let (level_4_page_table, _) = Cr3::read();
+    println!(
+        "Level 4 page table at: {:?}",
+        level_4_page_table.start_address()
+    );
+
     #[cfg(test)]
     test_main();
 
-    loop {}
+    println!("It did not crash!");
+
+    os::hlt_loop();
 }
 
 /// self defined panic handler function
@@ -22,7 +34,7 @@ pub extern "C" fn _start() -> ! {
 #[panic_handler] // -> ! means never returns
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    os::hlt_loop();
 }
 
 #[cfg(test)]
