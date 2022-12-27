@@ -5,28 +5,27 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
-use os::println;
+use os::print;
 
-#[no_mangle]
+#[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start() -> ! {
-    println!("Hello OS!");
-
-    #[cfg(test)]
     test_main();
 
     loop {}
 }
 
-/// self defined panic handler function
-#[cfg(not(test))]
-#[panic_handler] // -> ! means never returns
-fn panic(info: &PanicInfo) -> ! {
-    println!("{}", info);
-    loop {}
-}
+// fn test_runner(tests: &[&dyn Fn()]) {
+//     unimplemented!();
+// }
 
-#[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     os::test_panic_handler(info);
+}
+
+#[test_case]
+fn vga_write_robust() {
+    for number in 0..2000 {
+        print!("{} ", number);
+    }
 }
