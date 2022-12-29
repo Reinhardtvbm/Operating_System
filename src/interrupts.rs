@@ -77,8 +77,7 @@ extern "x86-interrupt" fn double_fault_handler(
 // =============================================================================================================
 // TIMER INTERRUPTS
 extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFrame) {
-    print!(".");
-
+    // should maybe remove till needed again?
     unsafe {
         notify_end_of_interrupt(InterruptIndex::Timer);
     }

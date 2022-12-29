@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bootloader = "0.9.23"       # for creating bootloader binary
+bootloader = { version = "0.9.23", features = ["map_physical_memory"] }     # for creating bootloader binary
 volatile = "0.4.5"          # for writing without compiler optimisation
 spin = "0.9.4"              # spinlock mutexes and other async spinlock stuffs
 x86_64 = "0.14.10"          # x86_64 specific instructions, registers, and structures

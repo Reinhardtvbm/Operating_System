@@ -7,10 +7,25 @@
 
 pub mod gdt;
 pub mod interrupts;
+pub mod memory;
 pub mod serial;
 pub mod vga_buffer;
 
 use core::panic::PanicInfo;
+
+#[cfg(test)]
+use bootloader::{entry_point, BootInfo};
+
+#[cfg(test)]
+entry_point!(kernel_test_main);
+
+/// Entry point for `cargo test`
+#[cfg(test)]
+fn kernel_test_main(_boot_info: &'static BootInfo) -> ! {
+    init(); // initialise the system
+    test_main();
+    hlt_loop();
+}
 
 pub fn init() {
     gdt::init(); // initialise the global descriptor table
@@ -42,7 +57,7 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 }
 
 pub trait Testable {
-    fn run(&self) -> ();
+    fn run(&self);
 }
 
 impl<T> Testable for T
@@ -68,15 +83,6 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
     serial_println!("[failed]\n");
     serial_println!("Error: {}\n", info);
     exit_qemu(QemuExitCode::Failure);
-    hlt_loop();
-}
-
-/// Entry point for `cargo test`
-#[cfg(test)]
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
-    init(); // initialise the system
-    test_main();
     hlt_loop();
 }
 
